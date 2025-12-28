@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useGame } from '../contexts/GameContext';
-import { EntityType, LevelConfig } from '../types';
+import { EntityType, LevelConfig, Difficulty } from '../types';
 import { LEVEL_CONFIGS } from '../constants';
 import { Screen } from '../types';
 import { RotateCcw, X, ShieldCheck, Flame, Skull, Droplets, Coins, User } from 'lucide-react';
 
 interface PuzzleScreenProps {
   levelId: number;
+  difficulty: Difficulty;
 }
 
 // Visual mapping for entities
@@ -21,7 +22,7 @@ const EntityIcon: React.FC<{ type: EntityType }> = ({ type }) => {
   }
 };
 
-export const PuzzleScreen: React.FC<PuzzleScreenProps> = ({ levelId }) => {
+export const PuzzleScreen: React.FC<PuzzleScreenProps> = ({ levelId, difficulty }) => {
   const { setScreen, completeLevel } = useGame();
   const [levelConfig, setLevelConfig] = useState<LevelConfig | null>(null);
   
@@ -144,9 +145,19 @@ export const PuzzleScreen: React.FC<PuzzleScreenProps> = ({ levelId }) => {
     setPins(prev => prev.filter(p => p !== pinId));
   };
 
+  const getRewardMultiplier = () => {
+    switch(difficulty) {
+        case Difficulty.EASY: return 0.5;
+        case Difficulty.NORMAL: return 1.0;
+        case Difficulty.HARD: return 1.5;
+        default: return 1.0;
+    }
+  };
+
   const handleWin = () => {
     if (levelConfig) {
-        completeLevel(levelConfig.id, levelConfig.reward);
+        const finalReward = Math.floor(levelConfig.reward * getRewardMultiplier());
+        completeLevel(levelConfig.id, finalReward);
         setScreen(Screen.MAP);
     }
   };
@@ -160,7 +171,14 @@ export const PuzzleScreen: React.FC<PuzzleScreenProps> = ({ levelId }) => {
         <button onClick={() => setScreen(Screen.MAP)} className="p-2 bg-slate-800 rounded-full text-white">
           <X className="w-6 h-6" />
         </button>
-        <h2 className="text-white font-bold">Level {levelConfig.id}</h2>
+        <div className="flex flex-col items-center">
+            <h2 className="text-white font-bold text-lg">Level {levelConfig.id}</h2>
+            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider
+                ${difficulty === Difficulty.HARD ? 'bg-red-500/20 text-red-400' : 
+                  difficulty === Difficulty.EASY ? 'bg-green-500/20 text-green-400' : 'bg-blue-500/20 text-blue-400'}`}>
+                {difficulty} Mode
+            </span>
+        </div>
         <button onClick={() => { 
             // Reset
             setZones(JSON.parse(JSON.stringify(levelConfig.layout.zones))); 
@@ -231,7 +249,7 @@ export const PuzzleScreen: React.FC<PuzzleScreenProps> = ({ levelId }) => {
                 <h2 className="text-3xl font-bold text-white mb-2">VICTORY!</h2>
                 <p className="text-slate-300 mb-8">{message}</p>
                 <div className="flex items-center space-x-2 text-amber-400 font-bold text-xl mb-8">
-                    <span>+{levelConfig.reward}</span>
+                    <span>+{Math.floor(levelConfig.reward * getRewardMultiplier())}</span>
                     <Coins />
                 </div>
                 <button 

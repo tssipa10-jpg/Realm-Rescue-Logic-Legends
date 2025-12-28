@@ -15,6 +15,12 @@ export enum EntityType {
   EMPTY = 'EMPTY',
 }
 
+export enum Difficulty {
+  EASY = 'EASY',
+  NORMAL = 'NORMAL',
+  HARD = 'HARD'
+}
+
 export interface GameState {
   gold: number;
   gems: number;
