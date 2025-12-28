@@ -337,44 +337,89 @@ export const PuzzleScreen: React.FC<PuzzleScreenProps> = ({ levelId, difficulty 
 
       {/* Result Overlay */}
       {status !== 'PLAYING' && (
-        <div className="absolute inset-0 z-50 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center animate-fade-in">
-          {status === 'WON' ? (
-              <>
-                <ShieldCheck className="w-24 h-24 text-green-500 mb-4 animate-bounce" />
-                <h2 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600 mb-2">VICTORY!</h2>
-                <p className="text-slate-300 mb-8 font-medium">{message}</p>
-                <div className="flex items-center justify-center space-x-2 text-amber-400 font-bold text-3xl mb-10 bg-slate-900/50 px-6 py-3 rounded-2xl border border-amber-500/30">
-                    <span>+{Math.floor(levelConfig.reward * getRewardMultiplier())}</span>
-                    <Coins className="w-8 h-8 fill-amber-400" />
-                </div>
-                <button 
-                    onClick={handleWin}
-                    className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-bold py-4 px-10 rounded-full shadow-lg shadow-green-500/20 transform transition hover:scale-105 active:scale-95"
-                >
-                    Claim & Continue
-                </button>
-              </>
-          ) : (
+        <div className="absolute inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center animate-fade-in overflow-hidden">
+          
+          {/* Background Effects */}
+          <div className="absolute inset-0 z-0 pointer-events-none">
+             {status === 'WON' && (
+                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-r from-amber-500/20 to-yellow-500/20 rounded-full blur-3xl animate-pulse"></div>
+             )}
+             {status === 'LOST' && (
+                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-r from-red-900/30 to-slate-900/30 rounded-full blur-3xl"></div>
+             )}
+          </div>
+
+          <div className={`relative z-10 flex flex-col items-center ${status === 'WON' ? 'animate-pop-in' : 'animate-shake'}`}>
+            {status === 'WON' ? (
               <>
                 <div className="relative mb-6">
-                    <Skull className="w-24 h-24 text-red-500 animate-pulse" />
-                    <Flame className="absolute bottom-0 left-0 w-24 h-24 text-red-600/50 blur-sm animate-pulse" />
+                    <div className="absolute inset-0 bg-yellow-500 blur-xl opacity-50 animate-pulse"></div>
+                    <ShieldCheck className="w-28 h-28 text-yellow-400 relative drop-shadow-[0_0_15px_rgba(250,204,21,0.5)]" />
+                    <Sparkles className="absolute -top-4 -right-4 w-12 h-12 text-white animate-[spin_3s_linear_infinite]" />
                 </div>
-                <h2 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-600 mb-2">DEFEAT</h2>
-                <p className="text-slate-300 mb-8 font-medium">{message}</p>
+                
+                <h2 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-yellow-300 to-amber-600 mb-2 drop-shadow-sm tracking-wide">
+                    VICTORY!
+                </h2>
+                
+                <div className="w-16 h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent mb-6"></div>
+
+                <p className="text-slate-200 mb-8 font-medium text-lg max-w-xs leading-relaxed">
+                    {message}
+                </p>
+
+                <div className="flex items-center justify-center space-x-3 bg-slate-800/80 px-8 py-4 rounded-3xl border border-amber-500/50 shadow-[0_0_20px_rgba(245,158,11,0.2)] mb-10 transform transition hover:scale-105">
+                    <span className="text-amber-400 font-bold text-4xl drop-shadow-md">+{Math.floor(levelConfig.reward * getRewardMultiplier())}</span>
+                    <Coins className="w-10 h-10 fill-amber-400 text-amber-200" />
+                </div>
+
+                <button 
+                    onClick={handleWin}
+                    className="group relative px-10 py-4 bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl font-bold text-white text-lg shadow-lg shadow-green-900/50 hover:shadow-green-500/40 hover:-translate-y-1 transition-all duration-200 active:translate-y-0"
+                >
+                    <span className="relative z-10 flex items-center gap-2">
+                        Claim Rewards 
+                        <span className="group-hover:translate-x-1 transition-transform">→</span>
+                    </span>
+                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-green-400 to-emerald-400 opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                </button>
+              </>
+            ) : (
+              <>
+                <div className="relative mb-6">
+                    <div className="absolute inset-0 bg-red-600 blur-2xl opacity-40 animate-pulse"></div>
+                    <Skull className="w-28 h-28 text-slate-200 relative z-10 drop-shadow-xl" />
+                    <Flame className="absolute bottom-0 left-1/2 -translate-x-1/2 w-32 h-32 text-red-600/60 blur-md animate-pulse z-0" />
+                    {/* Cracks/X overlay */}
+                    <X className="absolute inset-0 w-full h-full text-red-600 opacity-40 scale-125" />
+                </div>
+
+                <h2 className="text-5xl font-black text-slate-200 mb-2 tracking-widest drop-shadow-[0_2px_0_rgba(185,28,28,1)]">
+                    DEFEAT
+                </h2>
+
+                <div className="w-24 h-1 bg-gradient-to-r from-transparent via-red-600 to-transparent mb-6"></div>
+
+                <p className="text-red-200 mb-8 font-medium text-lg max-w-xs leading-relaxed opacity-90">
+                    {message}
+                </p>
+
                 <button 
                     onClick={() => { 
                         setZones(JSON.parse(JSON.stringify(levelConfig.layout.zones))); 
                         setPins(levelConfig.layout.connections.map(c => c.pinId)); 
                         setStatus('PLAYING'); 
                     }}
-                    className="bg-slate-700 hover:bg-slate-600 text-white font-bold py-4 px-10 rounded-full shadow-lg transform transition hover:scale-105 active:scale-95 flex items-center gap-2"
+                    className="group relative px-10 py-4 bg-slate-800 rounded-2xl font-bold text-slate-200 text-lg border border-slate-700 shadow-lg hover:bg-slate-700 hover:border-slate-500 transition-all duration-200 active:scale-95"
                 >
-                    <RotateCcw className="w-5 h-5" />
-                    <span>Try Again</span>
+                   <span className="flex items-center gap-2">
+                        <RotateCcw className="w-5 h-5 group-hover:-rotate-180 transition-transform duration-500" />
+                        Try Again
+                   </span>
                 </button>
               </>
-          )}
+            )}
+          </div>
         </div>
       )}
     </div>
