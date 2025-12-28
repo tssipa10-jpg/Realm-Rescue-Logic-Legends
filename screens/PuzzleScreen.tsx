@@ -3,7 +3,7 @@ import { useGame } from '../contexts/GameContext';
 import { EntityType, LevelConfig, Difficulty } from '../types';
 import { LEVEL_CONFIGS } from '../constants';
 import { Screen } from '../types';
-import { RotateCcw, X, ShieldCheck, Flame, Skull, Droplets, Coins, User, Sparkles } from 'lucide-react';
+import { RotateCcw, X, ShieldCheck, Flame, Skull, Droplets, Coins, User, Sparkles, Hand } from 'lucide-react';
 
 interface PuzzleScreenProps {
   levelId: number;
@@ -328,6 +328,16 @@ export const PuzzleScreen: React.FC<PuzzleScreenProps> = ({ levelId, difficulty 
                             <div className="w-3 h-3 rounded-full bg-amber-200/50"></div>
                         </div>
                     </div>
+
+                    {/* Tutorial Hand for Level 1 */}
+                    {levelId === 1 && conn.pinId === 'p1' && status === 'PLAYING' && (
+                        <div className="absolute right-0 top-6 animate-bounce pointer-events-none z-50">
+                            <div className="bg-white/90 text-slate-900 text-[10px] font-bold px-2 py-1 rounded shadow-lg mb-1 whitespace-nowrap">
+                                Tap to Pull!
+                            </div>
+                            <Hand className="w-8 h-8 text-white fill-white drop-shadow-md -rotate-12" />
+                        </div>
+                    )}
                  </div>
              )
           })}

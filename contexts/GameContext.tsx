@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { GameState, Screen } from '../types';
+import { GameState, Screen, Settings } from '../types';
 
 interface GameContextType {
   gameState: GameState;
@@ -10,7 +10,15 @@ interface GameContextType {
   completeLevel: (levelId: number, reward: number) => void;
   unlockLevel: (levelId: number) => void;
   spendEnergy: (amount: number) => boolean;
+  toggleSound: () => void;
+  toggleHaptics: () => void;
+  resetGame: () => void;
 }
+
+const defaultSettings: Settings = {
+  soundEnabled: true,
+  hapticsEnabled: true,
+};
 
 const defaultState: GameState = {
   gold: 0,
@@ -20,15 +28,25 @@ const defaultState: GameState = {
   currentLevelId: 1,
   castleLevel: 1,
   unlockedLevels: [1],
+  settings: defaultSettings,
 };
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // Load from local storage if available, else default
+  // Load from local storage with safe merge to prevent crashes on schema updates
   const [gameState, setGameState] = useState<GameState>(() => {
-    const saved = localStorage.getItem('realmRescueState');
-    return saved ? JSON.parse(saved) : defaultState;
+    try {
+      const saved = localStorage.getItem('realmRescueState');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Merge defaults to ensure new fields (like settings) exist in old saves
+        return { ...defaultState, ...parsed, settings: { ...defaultState.settings, ...parsed.settings } };
+      }
+    } catch (e) {
+      console.error("Failed to load save state", e);
+    }
+    return defaultState;
   });
 
   const [currentScreen, setScreen] = useState<Screen>(Screen.CASTLE);
@@ -55,7 +73,6 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const completeLevel = (levelId: number, reward: number) => {
     addGold(reward);
     unlockLevel(levelId + 1);
-    // Return to map after short delay handled by UI, but here we update data
   };
 
   const spendEnergy = (amount: number): boolean => {
@@ -64,6 +81,27 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return true;
     }
     return false;
+  };
+
+  const toggleSound = () => {
+    setGameState(prev => ({
+      ...prev,
+      settings: { ...prev.settings, soundEnabled: !prev.settings.soundEnabled }
+    }));
+  };
+
+  const toggleHaptics = () => {
+    setGameState(prev => ({
+      ...prev,
+      settings: { ...prev.settings, hapticsEnabled: !prev.settings.hapticsEnabled }
+    }));
+  };
+
+  const resetGame = () => {
+    if (confirm("Are you sure you want to reset all progress? This cannot be undone.")) {
+      setGameState(defaultState);
+      setScreen(Screen.CASTLE);
+    }
   };
 
   return (
@@ -75,7 +113,10 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       upgradeCastle,
       completeLevel,
       unlockLevel,
-      spendEnergy
+      spendEnergy,
+      toggleSound,
+      toggleHaptics,
+      resetGame
     }}>
       {children}
     </GameContext.Provider>

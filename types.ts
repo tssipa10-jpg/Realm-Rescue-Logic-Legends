@@ -21,6 +21,11 @@ export enum Difficulty {
   HARD = 'HARD'
 }
 
+export interface Settings {
+  soundEnabled: boolean;
+  hapticsEnabled: boolean;
+}
+
 export interface GameState {
   gold: number;
   gems: number;
@@ -29,6 +34,7 @@ export interface GameState {
   currentLevelId: number;
   castleLevel: number;
   unlockedLevels: number[];
+  settings: Settings;
 }
 
 export interface LevelConfig {
