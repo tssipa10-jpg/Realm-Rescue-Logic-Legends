@@ -23,6 +23,13 @@
       .animate-float-up {
         animation: floatUp 1s ease-out forwards;
       }
+      /* Animation for bubbles in liquids */
+      @keyframes bubbleRise {
+        0% { transform: translateY(100%) scale(0.5); opacity: 0; }
+        20% { opacity: 0.8; }
+        80% { opacity: 0.6; }
+        100% { transform: translateY(-150%) scale(1.2); opacity: 0; }
+      }
     </style>
   <script type="importmap">
 {
